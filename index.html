@@ -4,13 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sortinghat.ai - Discover Your Hogwarts House</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
       font-family: 'EB Garamond', serif;
-      background: url('https://cdn.pixabay.com/photo/2017/01/31/13/14/paper-2022443_1280.png') repeat center center fixed;
-      background-size: cover;
-      color: #3b2f1b;
+      background: linear-gradient(135deg, #3b0f0f, #0a0a0a);
+      color: #f0e6d2;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -27,13 +29,12 @@
     header img {
       height: 100px;
       margin: 10px;
-      display: inline-block;
     }
 
     h1 {
       font-size: 2.8em;
       margin-bottom: 10px;
-      color: #3e260e;
+      color: #d4af37;
     }
 
     p {
@@ -43,7 +44,7 @@
     }
 
     .cta-button {
-      background-color: #caa43a;
+      background-color: #d4af37;
       color: #000000;
       border: none;
       padding: 15px 30px;
@@ -60,12 +61,12 @@
     .quiz-box {
       display: none;
       flex-direction: column;
-      background: rgba(255, 255, 255, 0.7);
+      background: #1f1f1f;
       padding: 15px;
       border-radius: 12px;
       width: 100%;
       max-width: 700px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
     }
 
     #chatLog {
@@ -85,31 +86,17 @@
       max-width: 80%;
       line-height: 1.4;
       white-space: pre-line;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.4);
     }
 
     .user-msg {
       align-self: flex-end;
-      background: #d9c1a3;
+      background: #4a2512;
     }
 
     .ai-msg {
       align-self: flex-start;
-      background: #f5e7cb;
-    }
-
-    .house-crest {
-      max-width: 200px;
-      margin: 20px auto;
-      display: none;
-    }
-
-    .sorted-message {
-      text-align: center;
-      font-size: 1.5em;
-      font-weight: bold;
-      margin-top: 20px;
-      display: none;
+      background: #292929;
     }
 
     textarea {
@@ -138,14 +125,13 @@
 </head>
 <body>
   <header>
-    <img src="https://i.ibb.co/jPdv5tnC/6137929c4b96600004f676fe.png" alt="Hogwarts Crest" style="height: 100px; margin: 20px auto; display: block;">
-    <h1>Welcome to Sortinghat.ai</h1>
+    <img src="https://i.ibb.co/jPdv5tnC/6137929c4b96600004f676fe.png"  alt="Hogwarts Crest" aria-hidden="true">
+       <h1>Welcome to Sortinghat.ai</h1>
     <p>Use our enchanted AI-powered quiz to discover your true Hogwarts house. Just start chatting with the Sorting Hat!</p>
-    <img id="houseCrest" class="house-crest" src="" alt="Your House Crest" style="display:none; max-width: 200px; margin: 20px auto;">
   </header>
   <main>
     <button class="cta-button" onclick="startQuiz()">Start the Sorting Quiz</button>
-    <div class="quiz-box" id="quizBox" style="display:none;">
+    <div class="quiz-box" id="quizBox">
       <div id="chatLog"></div>
       <textarea id="userInput" rows="2" placeholder="Type your response here..."></textarea>
       <button class="cta-button" onclick="sendMessage()">Send</button>
@@ -154,10 +140,9 @@
   <footer>
     &copy; 2025 Sortinghat.ai. All rights reserved.
   </footer>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script>
     let chatLog = [];
-    const houseCrest = document.getElementById("houseCrest");
+    let hasIntroduced = false;
 
     function startQuiz() {
       document.querySelector(".cta-button").style.display = "none";
@@ -169,49 +154,10 @@
       const chatDiv = document.getElementById("chatLog");
       const msgDiv = document.createElement("div");
       msgDiv.className = sender === "user" ? "user-msg" : "ai-msg";
+      msgDiv.textContent = text;
       msgDiv.innerHTML = text.replace(/\n/g, '<br>');
       chatDiv.appendChild(msgDiv);
       chatDiv.scrollTop = chatDiv.scrollHeight;
-
-      const houseMatch = text.match(/\b(Gryffindor|Hufflepuff|Ravenclaw|Slytherin)\b/i);
-      if (sender === "ai" && houseMatch) {
-        const house = houseMatch[1].toLowerCase();
-        showSortedMessage(house);
-      }
-    }
-
-    function showSortedMessage(house) {
-      const crestUrl = {
-        gryffindor: "https://upload.wikimedia.org/wikipedia/en/thumb/0/02/Gryffindor_ClearBG.png/220px-Gryffindor_ClearBG.png",
-        hufflepuff: "https://upload.wikimedia.org/wikipedia/en/thumb/8/8f/Hufflepuff_ClearBG.png/220px-Hufflepuff_ClearBG.png",
-        ravenclaw: "https://upload.wikimedia.org/wikipedia/en/thumb/4/4e/Ravenclaw_ClearBG.png/220px-Ravenclaw_ClearBG.png",
-        slytherin: "https://upload.wikimedia.org/wikipedia/en/thumb/2/2e/Slytherin_ClearBG.png/220px-Slytherin_ClearBG.png"
-      }[house];
-
-      houseCrest.src = crestUrl;
-      houseCrest.style.display = "block";
-
-      const sortedMsg = document.createElement("div");
-      sortedMsg.className = "sorted-message";
-      sortedMsg.innerText = `You've been sorted into ${house.charAt(0).toUpperCase() + house.slice(1)}!`;
-      document.body.appendChild(sortedMsg);
-      sortedMsg.style.display = "block";
-
-      const tryAgainBtn = document.createElement("button");
-      tryAgainBtn.className = "cta-button";
-      tryAgainBtn.innerText = "Try Again";
-      tryAgainBtn.onclick = () => window.location.reload();
-      document.body.appendChild(tryAgainBtn);
-
-      triggerConfetti();
-    }
-
-    function triggerConfetti() {
-      confetti({
-        particleCount: 150,
-        spread: 100,
-        origin: { y: 0.6 }
-      });
     }
 
     async function sendMessage() {
@@ -223,7 +169,7 @@
       chatLog.push({ role: "user", content: userText });
       input.value = "";
 
-      const res = await fetch("https://sortinghat-ai-backend.onrender.com/api/sort", {
+        const res = await fetch("https://sortinghat-ai-backend.onrender.com/api/sort", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
