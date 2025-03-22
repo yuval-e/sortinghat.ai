@@ -170,7 +170,7 @@
       chatLog.push({ role: "user", content: userText });
       input.value = "";
 
-      const res = await fetch("https://sortinghat-backend.onrender.com/api/sort", {
+        const res = await fetch("https://sortinghat-ai-backend.onrender.com/api/sort", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
