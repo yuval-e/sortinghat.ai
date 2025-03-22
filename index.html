@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sortinghat.ai - Discover Your Hogwarts House</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'EB Garamond', serif;
+      background: linear-gradient(135deg, #3b0f0f, #0a0a0a);
+      color: #f0e6d2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    header img {
+      height: 100px;
+      margin: 10px;
+    }
+
+    h1 {
+      font-size: 2.8em;
+      margin-bottom: 10px;
+      color: #d4af37;
+    }
+
+    p {
+      font-size: 1.1em;
+      max-width: 600px;
+      margin: 0 auto 30px;
+    }
+
+    .cta-button {
+      background-color: #d4af37;
+      color: #000000;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1em;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .cta-button:hover {
+      background-color: #e6c744;
+    }
+
+    .quiz-box {
+      display: none;
+      flex-direction: column;
+      background: #1f1f1f;
+      padding: 15px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 700px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    }
+
+    #chatLog {
+      flex-grow: 1;
+      overflow-y: auto;
+      margin-bottom: 10px;
+      padding: 10px;
+      height: 350px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .user-msg, .ai-msg {
+      padding: 10px;
+      border-radius: 12px;
+      max-width: 80%;
+      line-height: 1.4;
+      white-space: pre-line;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+    }
+
+    .user-msg {
+      align-self: flex-end;
+      background: #4a2512;
+    }
+
+    .ai-msg {
+      align-self: flex-start;
+      background: #292929;
+    }
+
+    textarea {
+      width: calc(100% - 20px);
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1em;
+      resize: none;
+      margin-bottom: 10px;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #555;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <<img src="https://raw.githubusercontent.com/ChatGPTMagic/sortinghat-assets/main/hogwarts-crest.png" alt="Hogwarts Crest">
+    <img src="https://raw.githubusercontent.com/ChatGPTMagic/sortinghat-assets/main/sorting-hat.png" alt="Sorting Hat"> 
+    <h1>Welcome to Sortinghat.ai</h1>
+    <p>Use our enchanted AI-powered quiz to discover your true Hogwarts house. Just start chatting with the Sorting Hat!</p>
+  </header>
+  <main>
+    <button class="cta-button" onclick="startQuiz()">Start the Sorting Quiz</button>
+    <div class="quiz-box" id="quizBox">
+      <div id="chatLog"></div>
+      <textarea id="userInput" rows="2" placeholder="Type your response here..."></textarea>
+      <button class="cta-button" onclick="sendMessage()">Send</button>
+    </div>
+  </main>
+  <footer>
+    &copy; 2025 Sortinghat.ai. All rights reserved.
+  </footer>
+  <script>
+    let chatLog = [];
+    let hasIntroduced = false;
+
+    function startQuiz() {
+      document.querySelector(".cta-button").style.display = "none";
+      document.getElementById("quizBox").style.display = "flex";
+      addMessage("ai", "Hello there! I am the Sorting Hat. Before we begin, may I know your name?");
+    }
+
+    function addMessage(sender, text) {
+      const chatDiv = document.getElementById("chatLog");
+      const msgDiv = document.createElement("div");
+      msgDiv.className = sender === "user" ? "user-msg" : "ai-msg";
+      msgDiv.textContent = text;
+      msgDiv.innerHTML = text.replace(/\n/g, '<br>');
+      chatDiv.appendChild(msgDiv);
+      chatDiv.scrollTop = chatDiv.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById("userInput");
+      const userText = input.value.trim();
+      if (!userText) return;
+
+      addMessage("user", userText);
+      chatLog.push({ role: "user", content: userText });
+      input.value = "";
+
+      const res = await fetch("http://localhost:3001/api/sort", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ messages: chatLog })
+      });
+
+      const data = await res.json();
+      const reply = data.reply;
+      chatLog.push({ role: "assistant", content: reply });
+      addMessage("ai", reply);
+    }
+
+    document.getElementById("userInput").addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>
